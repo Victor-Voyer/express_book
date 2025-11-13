@@ -4,7 +4,10 @@ import { Model } from "sequelize";
 export default (sequelize, DataTypes) => {
   class Book extends Model {
     static associate(models) {
-      // Associations s'il y en a
+      Book.belongsTo(models.Type, {
+        foreignKey: 'type_id',
+        as: 'type'
+      });
     }
   }
   Book.init(
