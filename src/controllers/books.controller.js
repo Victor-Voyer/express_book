@@ -8,11 +8,6 @@ const { Book, Type } = db;
 
 export const getBooks = async (req, res) => {
   try {
-
-    console.log('Book model:', Book);
-    console.log('Type model:', Type);
-    console.log('Associations Book:', Book.associations);
-
     const books = await Book.findAll({
       include: [
         {
@@ -21,11 +16,10 @@ export const getBooks = async (req, res) => {
         },
       ],
     });
-    const booksData = books.map((book) => book.toJSON());
     res.status(200).json({
       success: true,
       message: "Les livres ont été récupérés avec succès",
-      data: booksData,
+      data: books,
     });
   } catch (error) {
     res.status(500).json({
@@ -78,7 +72,8 @@ export const createBook = async (req, res) => {
       });
     }
     const book = await Book.create({ title, author, available, type_id });
-    const bookWithType = await Book.findByPk(book.id, {
+    const bookWithType = await Book.findOne({
+      where: { id: book.id },
       include: [
         {
           model: Type,

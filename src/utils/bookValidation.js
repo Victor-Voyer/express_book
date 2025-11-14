@@ -102,7 +102,7 @@ async function validateUpdateBook(payload, Type) {
         } else {
             // Vérifier que le type existe dans la base de données
             if (Type) {
-                const type = await Type.findByPk(type_id);
+                const type = await Type.findOne({ where: { id: type_id } });
                 if (!type) {
                     errors.push("Le type spécifié n'existe pas");
                 }
