@@ -26,6 +26,10 @@ export default (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: true,
       },
+      img_cover: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,

@@ -3,6 +3,13 @@ import {
   validateCreateBook,
   validateUpdateBook,
 } from "../utils/bookValidation.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { promises as fs } from 'fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadPath = path.join(__dirname, '..', '..', 'public', 'uploads');
 
 const { Book, Type } = db;
 
@@ -60,9 +67,10 @@ export const getBookById = async (req, res) => {
 };
 
 export const createBook = async (req, res) => {
+  console.log(req.body, req.file);
   try {
     const { title, author, available, type_id } = req.body;
-    const payload = { title, author, dispo: available, type_id };
+    const payload = { title, author, dispo: available, type_id, img_cover: req.file.filename };
     const errors = await validateCreateBook(payload, Type);
     if (errors.length > 0) {
       return res.status(400).json({
@@ -71,7 +79,7 @@ export const createBook = async (req, res) => {
         errors: errors,
       });
     }
-    const book = await Book.create({ title, author, available, type_id });
+    const book = await Book.create(payload);
     const bookWithType = await Book.findOne({
       where: { id: book.id },
       include: [
@@ -92,6 +100,8 @@ export const createBook = async (req, res) => {
       message: error.message,
     });
   }
+  console.log(req.file);
+  
 };
 
 export const updateBook = async (req, res) => {
@@ -145,6 +155,16 @@ export const deleteBook = async (req, res) => {
         success: false,
         message: "Le livre n'a pas été trouvé",
       });
+    }
+    if (book.img_cover) {
+      const imagePath = path.join(uploadPath, book.img_cover);
+      try {
+        await fs.unlink(imagePath);
+      } catch (err) {
+        if (err.code !== "ENOENT") {
+          console.error(`Impossible de supprimer ${imagePath}`, err);
+        }
+      }
     }
     await book.destroy();
     res.status(200).json({
