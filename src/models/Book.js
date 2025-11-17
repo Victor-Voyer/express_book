@@ -6,7 +6,8 @@ export default (sequelize, DataTypes) => {
     static associate(models) {
       Book.belongsTo(models.Type, {
         foreignKey: 'type_id',
-        as: 'type'
+        as: 'type',
+        onDelete: 'CASCADE'
       });
     }
   }
